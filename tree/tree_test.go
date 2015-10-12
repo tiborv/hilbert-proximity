@@ -19,11 +19,14 @@ func TestNode(t *testing.T) {
 	tree.InsertPoint(point2)
 	tree.InsertPoint(point3)
 
-	node3 := tree.Find(point3)
-	assert.Equal(t, node3.GetHash(), "101110")
-
 	node := tree.Find(point)
 	assert.Equal(t, node.GetHash(), "10")
+
+	node2 := tree.Find(point2)
+	assert.Equal(t, node2.GetHash(), "1110")
+
+	node3 := tree.Find(point3)
+	assert.Equal(t, node3.GetHash(), "101110")
 
 	assert.True(t, node3.ContainsPoint(point3))
 
