@@ -2,21 +2,23 @@ package tree
 
 import (
 	"bytes"
+	"log"
 
 	"github.com/tiborv/hilbert-gis/geo"
 )
 
 //InsertPoint Inserts a point into the first availbe node from root and down
 func (n *Node) InsertPoint(point geo.Point) *Node {
+	if n == nil {
+		log.Fatal("InsertPoint n==nil!")
+	}
 	return n.insert(point, 0)
 }
 
 func (n *Node) insert(point geo.Point, pos int) *Node {
-
 	concat, last := point.GetConcatAt(pos)
 	n = n.next(concat)
-	if last {
-		n.addPoint(point, 1)
+	if n.addPoint(point, 1) || last {
 		return n
 	}
 	return n.insert(point, pos+1)

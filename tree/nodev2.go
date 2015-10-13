@@ -83,32 +83,33 @@ func (n *Node) split() *Node {
 		c4 := n.newNode("L", "11", mapL)
 		n.children[3] = &c4
 	case "D":
-		c1 := n.newNode("D", "00", mapD)
+		c1 := n.newNode("L", "00", mapL)
 		n.children[0] = &c1
-		c2 := n.newNode("R", "01", mapR)
+		c2 := n.newNode("D", "01", mapD)
 		n.children[1] = &c2
-		c3 := n.newNode("L", "10", mapL)
+		c3 := n.newNode("D", "10", mapD)
 		n.children[2] = &c3
-		c4 := n.newNode("D", "11", mapD)
+		c4 := n.newNode("R", "11", mapR)
 		n.children[3] = &c4
 	case "L":
-		c1 := n.newNode("L", "00", mapL)
+		c1 := n.newNode("D", "00", mapD)
 		n.children[0] = &c1
 		c2 := n.newNode("L", "01", mapL)
 		n.children[1] = &c2
-		c3 := n.newNode("D", "10", mapD)
+		c3 := n.newNode("L", "10", mapL)
 		n.children[2] = &c3
 		c4 := n.newNode("U", "11", mapU)
 		n.children[3] = &c4
 	case "R":
 		c1 := n.newNode("U", "00", mapU)
 		n.children[0] = &c1
-		c2 := n.newNode("D", "01", mapD)
+		c2 := n.newNode("R", "01", mapR)
 		n.children[1] = &c2
 		c3 := n.newNode("R", "10", mapR)
 		n.children[2] = &c3
-		c4 := n.newNode("R", "11", mapR)
+		c4 := n.newNode("D", "11", mapD)
 		n.children[3] = &c4
+
 	}
 	//Re-insert points from the root-node
 	if len(n.points) > 0 {

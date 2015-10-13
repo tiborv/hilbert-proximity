@@ -1,5 +1,7 @@
 package geo
 
+import "log"
+
 //Point Object
 type Point struct {
 	x string
@@ -9,6 +11,9 @@ type Point struct {
 //NewPoint Point constructor
 func NewPoint(x string, y string) Point {
 	p := Point{x: x, y: y}
+	if len(x) != len(y) {
+		log.Fatal("Point must have same cordinate lenght!")
+	}
 	return p
 }
 
@@ -29,7 +34,10 @@ func (p Point) Equals(p2 Point) bool {
 
 //GetConcatAt returns concat of x and y values at a position i
 func (p Point) GetConcatAt(i int) (concat string, end bool) {
-	if i+1 == len(p.x) {
+	if i >= len(p.x) {
+		log.Fatal("GetConcat out of range!")
+	}
+	if i == len(p.x)-1 {
 		end = true
 	}
 	concat = string(p.x[i]) + string(p.y[i])
