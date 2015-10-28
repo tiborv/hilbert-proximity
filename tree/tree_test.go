@@ -1,66 +1,97 @@
 package tree
 
 import (
+	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/tiborv/hilbert-gis/geo"
 )
 
-func TestNode(t *testing.T) {
-	tree := NewTree()
-	assert.Equal(t, tree.GetSector(), "ROOT")
+var prTree Node
+var testpoints []geo.Point
 
-	point := geo.NewPoint("1", "1")
-	point2 := geo.NewPoint("11", "10")
-	point3 := geo.NewPoint("110", "100")
+func init() {
+	prTree = NewTree(1, false)
+	for i := 0; i < 2; i++ {
+		for j := 0; j < 2; j++ {
+			x := fmt.Sprintf("%01s", strconv.FormatInt(int64(i), 2))
+			y := fmt.Sprintf("%01s", strconv.FormatInt(int64(j), 2))
+			g := geo.NewPoint(x, y)
+			testpoints = append(testpoints, g)
+			prTree.InsertPoint(g)
+		}
+	}
+	for i := 0; i < 4; i++ {
+		for j := 0; j < 4; j++ {
+			x := fmt.Sprintf("%02s", strconv.FormatInt(int64(i), 2))
+			y := fmt.Sprintf("%02s", strconv.FormatInt(int64(j), 2))
+			g := geo.NewPoint(x, y)
+			testpoints = append(testpoints, g)
+			prTree.InsertPoint(g)
+		}
+	}
 
-	tree.InsertPoint(point)
-	tree.InsertPoint(point2)
-	tree.InsertPoint(point3)
+	for i := 0; i < 8; i++ {
+		for j := 0; j < 8; j++ {
+			x := fmt.Sprintf("%03s", strconv.FormatInt(int64(i), 2))
+			y := fmt.Sprintf("%03s", strconv.FormatInt(int64(j), 2))
 
-	node := tree.Find(point)
-	assert.Equal(t, node.GetHash(), "10")
+			g := geo.NewPoint(x, y)
+			testpoints = append(testpoints, g)
+			prTree.InsertPoint(g)
+		}
+	}
+	for i := 0; i < 16; i++ {
+		for j := 0; j < 16; j++ {
+			x := fmt.Sprintf("%04s", strconv.FormatInt(int64(i), 2))
+			y := fmt.Sprintf("%04s", strconv.FormatInt(int64(j), 2))
 
-	node2 := tree.Find(point2)
-	assert.Equal(t, node2.GetHash(), "1110")
-
-	node3 := tree.Find(point3)
-	assert.Equal(t, node3.GetHash(), "101110")
-
-	assert.Equal(t, node.parent.orient, "U")
-	assert.Equal(t, node2.parent.orient, "U")
-	assert.Equal(t, node3.parent.orient, "L")
-
-	assert.True(t, node3.ContainsPoint(point3))
+			g := geo.NewPoint(x, y)
+			testpoints = append(testpoints, g)
+			prTree.InsertPoint(g)
+		}
+	}
 
 }
 
-func TestNode2(t *testing.T) {
-	tree := NewTree()
-	point := geo.NewPoint("0", "0")
-	point2 := geo.NewPoint("00", "00")
-	point3 := geo.NewPoint("001", "001")
+var seen []Node
 
-	tree.InsertPoint(point)
-	tree.InsertPoint(point2)
-	tree.InsertPoint(point3)
+func (n Node) alreadySeen() bool {
+	for _, p := range seen {
+		if n.GetHash() == p.GetHash() {
 
-	node := tree.Find(point)
-	assert.Equal(t, node.GetHash(), "00")
+			return true
+		}
+	}
+	seen = append(seen, n)
+	return false
+}
 
-	node2 := tree.Find(point2)
-	assert.Equal(t, node2.GetHash(), "0000")
+func (n Node) checkPoint() {
+	for i, p := range testpoints {
+		if n.ContainsPoint(p) {
+			testpoints = append(testpoints[:i], testpoints[i+1:]...)
+		}
+	}
+}
 
-	node3 := tree.Find(point3)
-	assert.Equal(t, node3.GetHash(), "100000")
+func TestPoints(t *testing.T) {
+	assert.Equal(t, prTree.GetSector(), "ROOT")
 
-	assert.Equal(t, node.parent.orient, "U")
+	i := 0
 
-	assert.Equal(t, node2.parent.orient, "R")
+	for z := prTree.leftLeaf(); z.right != nil; z = z.right {
+		z.print()
+		if z.right.alreadySeen() {
+			fmt.Println("NIGNOG")
 
-	assert.Equal(t, node3.parent.orient, "U")
-
-	assert.True(t, node3.ContainsPoint(point3))
+			z.print()
+			z.right.print()
+			break
+		}
+		i++
+	}
 
 }
