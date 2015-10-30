@@ -13,7 +13,7 @@ var prTree Node
 var testpoints []geo.Point
 
 func init() {
-	prTree = NewTree(1, false)
+	prTree = NewTree(5, false)
 	for i := 0; i < 2; i++ {
 		for j := 0; j < 2; j++ {
 			x := fmt.Sprintf("%01s", strconv.FormatInt(int64(i), 2))
@@ -32,7 +32,6 @@ func init() {
 			prTree.InsertPoint(g)
 		}
 	}
-
 	for i := 0; i < 8; i++ {
 		for j := 0; j < 8; j++ {
 			x := fmt.Sprintf("%03s", strconv.FormatInt(int64(i), 2))
@@ -69,21 +68,26 @@ func (n Node) alreadySeen() bool {
 	return false
 }
 
-func (n Node) checkPoint() bool {
+func removeFromTestPoints(gp geo.Point) bool {
 	for i, p := range testpoints {
-		if n.ContainsPoint(p) {
+		if p.Equals(gp) {
 			testpoints = append(testpoints[:i], testpoints[i+1:]...)
 			return true
 		}
 	}
 	return false
 }
+func (n Node) checkPoint() {
+	for _, p := range n.points {
+		removeFromTestPoints(p)
+	}
+}
 
 func TestPoints(t *testing.T) {
 	assert.Equal(t, prTree.GetSector(), "ROOT")
 
 	for z := prTree.right; z != nil; z = z.right {
-		assert.True(t, z.checkPoint(), "Should find every point created")
+		z.checkPoint()
 
 		assert.False(t, z.alreadySeen(), "Should see every node only once")
 	}

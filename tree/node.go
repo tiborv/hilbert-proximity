@@ -152,7 +152,7 @@ func (n *Node) insert(point geo.Point, pos int) *Node {
 			return n
 		}
 		if last {
-			log.Fatal("Couldnt insert:", point)
+			log.Fatal("Couldnt insert, not enough space on each node", point)
 		}
 	}
 
