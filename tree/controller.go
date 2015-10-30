@@ -59,6 +59,12 @@ func (n *Node) GetHash() string {
 	return buffer.String()
 
 }
+func (n *Node) rigthLeaf() *Node {
+	for n.splitted {
+		n = n.children[3]
+	}
+	return n
+}
 
 func (n *Node) leftLeaf() *Node {
 	for n.splitted {

@@ -100,27 +100,19 @@ func (n *Node) split() *Node {
 		n.children[2] = newNode(n, "R", "10")
 		n.children[3] = newNode(n, "D", "11")
 	}
-
 	iter := n
-
-	for true {
-		if iter.parent == nil {
-			n.children[3].right = nil
-			break
-		}
-		if iter.right != nil {
+	for iter.right != nil && iter.parent != nil {
+		if mx {
 			n.children[3].right = iter.right.leftLeaf()
-			if iter.right.leftLeaf().print() {
-				fmt.Println("NEXT!")
-				n.children[3].print()
-				iter.right.leftLeaf().print()
-
-			}
+		} else {
+			n.children[3].right = iter.right
 			break
 		}
-
 		iter = iter.parent
+	}
 
+	if iter.parent == nil {
+		n.children[3].right = nil
 	}
 
 	n.children[0].right = n.children[1]
@@ -147,9 +139,9 @@ func (n *Node) split() *Node {
 
 func (n *Node) insert(point geo.Point, pos int) *Node {
 	concat, last := point.GetConcatAt(pos)
-	n = n.split().next(concat)
-	if mx { //If MX-tree
-		if last {
+	n = n.split().next(concat) //.split() only splits if not splitted if not splitted
+	if mx {                    //If MX-tree
+		if last { //Only add if on last bit of point
 			if !n.addPoint(point) {
 				fmt.Println("Couldnt insert point:", point)
 			}
@@ -161,7 +153,6 @@ func (n *Node) insert(point geo.Point, pos int) *Node {
 		}
 		if last {
 			log.Fatal("Couldnt insert:", point)
-
 		}
 	}
 
@@ -192,7 +183,8 @@ func (n *Node) getRoot() *Node {
 func (n *Node) getParent() *Node {
 	return n.parent
 }
-func (n Node) print() bool {
+
+func (n Node) treePos() []int {
 	var arr []int
 	for n.parent != nil {
 		for i, c := range n.parent.children {
@@ -203,11 +195,8 @@ func (n Node) print() bool {
 		}
 		n = *n.parent
 	}
-	if len(arr) == 4 && arr[0] == 0 && arr[1] == 0 && arr[2] == 0 && arr[3] == 3 {
-		fmt.Println("FANT")
-		fmt.Println(arr)
-		return true
+	for i, j := 0, len(arr)-1; i < j; i, j = i+1, j-1 {
+		arr[i], arr[j] = arr[j], arr[i]
 	}
-	fmt.Println(arr)
-	return false
+	return arr
 }

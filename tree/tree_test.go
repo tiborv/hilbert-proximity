@@ -69,29 +69,23 @@ func (n Node) alreadySeen() bool {
 	return false
 }
 
-func (n Node) checkPoint() {
+func (n Node) checkPoint() bool {
 	for i, p := range testpoints {
 		if n.ContainsPoint(p) {
 			testpoints = append(testpoints[:i], testpoints[i+1:]...)
+			return true
 		}
 	}
+	return false
 }
 
 func TestPoints(t *testing.T) {
 	assert.Equal(t, prTree.GetSector(), "ROOT")
 
-	i := 0
+	for z := prTree.right; z != nil; z = z.right {
+		assert.True(t, z.checkPoint(), "Should find every point created")
 
-	for z := prTree.leftLeaf(); z.right != nil; z = z.right {
-		z.print()
-		if z.right.alreadySeen() {
-			fmt.Println("NIGNOG")
-
-			z.print()
-			z.right.print()
-			break
-		}
-		i++
+		assert.False(t, z.alreadySeen(), "Should see every node only once")
 	}
-
+	assert.Empty(t, testpoints, "All created testpoints should have been found")
 }
