@@ -34,7 +34,7 @@ func newNode(parent *Node, orient string, sector string) *Node {
 	if parent == nil {
 		newNode.level = 0
 	} else {
-		newNode.level++
+		newNode.level = parent.level + 1
 	}
 	switch orient {
 	case "U":
@@ -82,18 +82,18 @@ func (n *Node) split() *Node {
 	case "U":
 		n.children[0] = newNode(n, "R", "00")
 		n.children[1] = newNode(n, "U", "01")
-		n.children[2] = newNode(n, "U", "10")
-		n.children[3] = newNode(n, "L", "11")
+		n.children[2] = newNode(n, "L", "11")
+		n.children[3] = newNode(n, "U", "10")
 	case "D":
-		n.children[0] = newNode(n, "L", "00")
-		n.children[1] = newNode(n, "D", "01")
-		n.children[2] = newNode(n, "D", "10")
-		n.children[3] = newNode(n, "R", "11")
+		n.children[0] = newNode(n, "R", "11")
+		n.children[1] = newNode(n, "D", "10")
+		n.children[2] = newNode(n, "L", "00")
+		n.children[3] = newNode(n, "D", "01")
 	case "L":
-		n.children[0] = newNode(n, "D", "00")
+		n.children[0] = newNode(n, "U", "11")
 		n.children[1] = newNode(n, "L", "01")
-		n.children[2] = newNode(n, "L", "10")
-		n.children[3] = newNode(n, "U", "11")
+		n.children[2] = newNode(n, "D", "00")
+		n.children[3] = newNode(n, "L", "10")
 	case "R":
 		n.children[0] = newNode(n, "U", "00")
 		n.children[1] = newNode(n, "R", "01")
@@ -152,7 +152,8 @@ func (n *Node) insert(point geo.Point, pos int) *Node {
 			return n
 		}
 		if last {
-			log.Fatal("Couldnt insert, not enough space on each node", point)
+			fmt.Println(n.points, n.treePos(), n.level)
+			log.Fatal("Couldnt insert, not enough point", point)
 		}
 	}
 
