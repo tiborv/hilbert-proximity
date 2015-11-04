@@ -136,6 +136,7 @@ func TestPoint2(t *testing.T) {
 
 	point1 := geo.NewPoint("1", "0")
 	point2 := geo.NewPoint("11", "01")
+
 	point3 := geo.NewPoint("110", "010")
 	point4 := geo.NewPoint("1101", "0100")
 	point5 := geo.NewPoint("1100", "0111")

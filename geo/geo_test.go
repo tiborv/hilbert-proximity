@@ -24,3 +24,20 @@ func Test_Point(t *testing.T) {
 	assert.False(t, p.Equals(p3), "Should not be equal")
 
 }
+
+func Test_Within(t *testing.T) {
+	p1 := NewPoint("1111", "1111")
+	assert.Equal(t, int64(15), p1.xInt)
+	assert.Equal(t, int64(15), p1.yInt)
+	p2 := NewPoint("0011", "0100")
+	p3 := NewPoint("0110", "0110")
+	p4 := NewPoint("1001", "0110")
+	min := NewPoint("0011", "0010")
+	max := NewPoint("0111", "0111")
+
+	assert.True(t, p2.WithinArea(min, max))
+	assert.True(t, p3.WithinArea(min, max))
+	assert.False(t, p4.WithinArea(min, max))
+	assert.False(t, p1.WithinArea(min, max))
+
+}

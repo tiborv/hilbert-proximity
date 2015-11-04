@@ -96,9 +96,9 @@ func (n *Node) split() *Node {
 		n.children[3] = newNode(n, "L", "10")
 	case "R":
 		n.children[0] = newNode(n, "U", "00")
-		n.children[1] = newNode(n, "R", "01")
-		n.children[2] = newNode(n, "R", "10")
-		n.children[3] = newNode(n, "D", "11")
+		n.children[1] = newNode(n, "R", "10")
+		n.children[2] = newNode(n, "D", "11")
+		n.children[3] = newNode(n, "R", "01")
 	}
 	iter := n
 	for iter.right != nil && iter.parent != nil {

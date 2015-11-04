@@ -7,11 +7,11 @@ func mapR(value string, nodes []*Node) *Node {
 	case "00":
 		return nodes[0]
 	case "10":
-		return nodes[2]
-	case "11":
 		return nodes[1]
-	case "01":
+	case "11":
 		return nodes[3]
+	case "01":
+		return nodes[2]
 	}
 	log.Fatal("MapR: Out of bounds!")
 	return nodes[3]
