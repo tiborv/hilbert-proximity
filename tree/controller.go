@@ -8,11 +8,10 @@ import (
 )
 
 //NewTree creates a rootnode
-func NewTree(maxPointsEachNode int, matrix bool) Node {
+func NewTree(maxPointsEachNode int) *Node {
 	maxPoints = maxPointsEachNode
-	mx = matrix
 	pointsInserted = 0
-	return *newNode(nil, "U", "")
+	return newNode(nil, "U", "", "")
 }
 
 //GetSector returns the sector for a given node

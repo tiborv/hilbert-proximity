@@ -9,18 +9,18 @@ import (
 	"github.com/tiborv/hilbert-gis/geo"
 )
 
-var prTree Node
+var testTree *Node
 var testpoints []geo.Point
 
 func init() {
-	prTree = NewTree(1, false)
+	testTree = NewTree(1)
 	for i := 0; i < 2; i++ {
 		for j := 0; j < 2; j++ {
 			x := fmt.Sprintf("%01s", strconv.FormatInt(int64(i), 2))
 			y := fmt.Sprintf("%01s", strconv.FormatInt(int64(j), 2))
 			g := geo.NewPoint(x, y)
 			testpoints = append(testpoints, g)
-			prTree.InsertPoint(g)
+			testTree.InsertPoint(g)
 		}
 	}
 	for i := 0; i < 4; i++ {
@@ -29,38 +29,25 @@ func init() {
 			y := fmt.Sprintf("%02s", strconv.FormatInt(int64(j), 2))
 			g := geo.NewPoint(x, y)
 			testpoints = append(testpoints, g)
-			prTree.InsertPoint(g)
+			testTree.InsertPoint(g)
 		}
 	}
 	for i := 0; i < 8; i++ {
 		for j := 0; j < 8; j++ {
 			x := fmt.Sprintf("%03s", strconv.FormatInt(int64(i), 2))
 			y := fmt.Sprintf("%03s", strconv.FormatInt(int64(j), 2))
-
 			g := geo.NewPoint(x, y)
 			testpoints = append(testpoints, g)
-			prTree.InsertPoint(g)
+			testTree.InsertPoint(g)
 		}
 	}
-
 	for i := 0; i < 16; i++ {
 		for j := 0; j < 16; j++ {
 			x := fmt.Sprintf("%04s", strconv.FormatInt(int64(i), 2))
 			y := fmt.Sprintf("%04s", strconv.FormatInt(int64(j), 2))
-
 			g := geo.NewPoint(x, y)
 			testpoints = append(testpoints, g)
-			prTree.InsertPoint(g)
-		}
-	}
-	for i := 0; i < 32; i++ {
-		for j := 0; j < 32; j++ {
-			x := fmt.Sprintf("%05s", strconv.FormatInt(int64(i), 2))
-			y := fmt.Sprintf("%05s", strconv.FormatInt(int64(j), 2))
-
-			g := geo.NewPoint(x, y)
-			testpoints = append(testpoints, g)
-			prTree.InsertPoint(g)
+			testTree.InsertPoint(g)
 		}
 	}
 	fmt.Println("Points inserted:", pointsInserted)
@@ -96,31 +83,32 @@ func (n Node) checkPoint() {
 }
 
 func TestPointers(t *testing.T) {
-	assert.Equal(t, prTree.GetSector(), "ROOT")
+	assert.Equal(t, testTree.GetSector(), "ROOT")
 
-	for z := prTree.right; z != nil; z = z.right {
+	for z := testTree.next; z != nil; z = z.next {
 		z.checkPoint()
+
 		assert.False(t, z.alreadySeen(), "Should see every node only once")
 	}
 	assert.Empty(t, testpoints, "All created testpoints should have been found")
 }
 
-func TestPoint1(t *testing.T) {
+func TestPoint7(t *testing.T) {
 
-	assert.Equal(t, prTree.GetSector(), "ROOT")
+	assert.Equal(t, testTree.GetSector(), "ROOT")
 
 	point1 := geo.NewPoint("1", "1")
 	point2 := geo.NewPoint("11", "10")
 	point3 := geo.NewPoint("110", "100")
 
-	node1 := prTree.Find(point1)
-	assert.Equal(t, node1.GetHash(), "10", "node1 hash")
+	node1 := testTree.Find(point1)
+	assert.Equal(t, node1.hash, "10", "node1 hash")
 
-	node2 := prTree.Find(point2)
-	assert.Equal(t, node2.GetHash(), "1110", "node2 hash")
+	node2 := testTree.Find(point2)
+	assert.Equal(t, node2.hash, "1011", "node2 hash")
 
-	node3 := prTree.Find(point3)
-	assert.Equal(t, node3.GetHash(), "101110", "node3 hash")
+	node3 := testTree.Find(point3)
+	assert.Equal(t, node3.hash, "101110", "node3 hash")
 
 	assert.Equal(t, node1.parent.orient, "U", "node1 orient")
 	assert.Equal(t, node2.parent.orient, "U", "node2 orient")
@@ -130,9 +118,9 @@ func TestPoint1(t *testing.T) {
 
 }
 
-func TestPoint2(t *testing.T) {
+func TestPoint8(t *testing.T) {
 
-	assert.Equal(t, prTree.GetSector(), "ROOT")
+	assert.Equal(t, testTree.GetSector(), "ROOT")
 
 	point1 := geo.NewPoint("1", "0")
 	point2 := geo.NewPoint("11", "01")
@@ -141,20 +129,20 @@ func TestPoint2(t *testing.T) {
 	point4 := geo.NewPoint("1101", "0100")
 	point5 := geo.NewPoint("1100", "0111")
 
-	node1 := prTree.Find(point1)
-	assert.Equal(t, node1.GetHash(), "11", "node1 hash")
+	node1 := testTree.Find(point1)
+	assert.Equal(t, node1.hash, "11", "node1 hash")
 
-	node2 := prTree.Find(point2)
-	assert.Equal(t, node2.GetHash(), "0011", "node2 hash")
+	node2 := testTree.Find(point2)
+	assert.Equal(t, node2.hash, "1100", "node2 hash")
 
-	node3 := prTree.Find(point3)
-	assert.Equal(t, node3.GetHash(), "100011", "node3 hash")
+	node3 := testTree.Find(point3)
+	assert.Equal(t, node3.hash, "110010", "node3 hash")
 
-	node4 := prTree.Find(point4)
-	assert.Equal(t, node4.GetHash(), "01100011", "node4 hash")
+	node4 := testTree.Find(point4)
+	assert.Equal(t, node4.hash, "11001001", "node4 hash")
 
-	node5 := prTree.Find(point5)
-	assert.Equal(t, node5.GetHash(), "11110011", "node5 hash")
+	node5 := testTree.Find(point5)
+	assert.Equal(t, node5.hash, "11001111", "node5 hash")
 
 	assert.Equal(t, node1.parent.orient, "U", "node1 orient")
 	assert.Equal(t, node2.parent.orient, "L", "node2 orient")
@@ -175,23 +163,23 @@ func TestPoint3(t *testing.T) {
 	point5 := geo.NewPoint("1010", "0001")
 	point6 := geo.NewPoint("110", "001")
 
-	node1 := prTree.Find(point1)
-	assert.Equal(t, node1.GetHash(), "11", "node1 hash")
+	node1 := testTree.Find(point1)
+	assert.Equal(t, node1.hash, "11", "node1 hash")
 
-	node2 := prTree.Find(point2)
-	assert.Equal(t, node2.GetHash(), "1011", "node2 hash")
+	node2 := testTree.Find(point2)
+	assert.Equal(t, node2.hash, "1110", "node2 hash")
 
-	node3 := prTree.Find(point3)
-	assert.Equal(t, node3.GetHash(), "101011", "node3 hash")
+	node3 := testTree.Find(point3)
+	assert.Equal(t, node3.hash, "111010", "node3 hash")
 
-	node4 := prTree.Find(point4)
-	assert.Equal(t, node4.GetHash(), "01101011", "node4 hash")
+	node4 := testTree.Find(point4)
+	assert.Equal(t, node4.hash, "11101001", "node4 hash")
 
-	node5 := prTree.Find(point5)
-	assert.Equal(t, node5.GetHash(), "01111011", "node5 hash")
+	node5 := testTree.Find(point5)
+	assert.Equal(t, node5.hash, "11101101", "node5 hash")
 
-	node6 := prTree.Find(point6)
-	assert.Equal(t, node6.GetHash(), "011111", "node6 hash")
+	node6 := testTree.Find(point6)
+	assert.Equal(t, node6.hash, "111101", "node6 hash")
 
 	assert.Equal(t, node1.parent.orient, "U", "node1 orient")
 	assert.Equal(t, node2.parent.orient, "L", "node2 orient")
