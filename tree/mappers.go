@@ -1,61 +1,30 @@
 package tree
 
-import "log"
+var mapR, mapU, mapL, mapD map[byte]int
 
-func mapR(value string, nodes []*Node) *Node {
-	switch value {
-	case "00":
-		return nodes[0]
-	case "10":
-		return nodes[1]
-	case "11":
-		return nodes[2]
-	case "01":
-		return nodes[3]
+func init() {
+	mapR = map[byte]int{
+		0: 0,
+		2: 1,
+		3: 2,
+		1: 3,
 	}
-	log.Fatal("MapR: Out of bounds!")
-	return nodes[3]
-}
-func mapU(value string, nodes []*Node) *Node {
-	switch value {
-	case "00":
-		return nodes[0]
-	case "10":
-		return nodes[3]
-	case "11":
-		return nodes[2]
-	case "01":
-		return nodes[1]
+	mapU = map[byte]int{
+		0: 0,
+		2: 3,
+		3: 2,
+		1: 1,
 	}
-	log.Fatal("MapU: Out of bounds!")
-	return nodes[3]
-}
-func mapL(value string, nodes []*Node) *Node {
-	switch value {
-	case "11":
-		return nodes[0]
-	case "01":
-		return nodes[1]
-	case "00":
-		return nodes[2]
-	case "10":
-		return nodes[3]
+	mapL = map[byte]int{
+		0: 2,
+		2: 3,
+		3: 0,
+		1: 1,
 	}
-	log.Fatal("MapL: Out of bounds!")
-	return nodes[3]
-}
-
-func mapD(value string, nodes []*Node) *Node {
-	switch value {
-	case "11":
-		return nodes[0]
-	case "10":
-		return nodes[1]
-	case "00":
-		return nodes[2]
-	case "01":
-		return nodes[3]
+	mapD = map[byte]int{
+		0: 2,
+		2: 1,
+		3: 0,
+		1: 3,
 	}
-	log.Fatal("MapD: Out of bounds!")
-	return nodes[3]
 }

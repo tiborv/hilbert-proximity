@@ -11,15 +11,13 @@ import (
 func NewTree(maxPointsEachNode int) *Node {
 	maxPoints = maxPointsEachNode
 	pointsInserted = 0
-	return newNode(nil, "U", "", "")
+
+	return &Node{orient: orientU, children: make([]*Node, 4), splitted: false}
 }
 
-//GetSector returns the sector for a given node
-func (n Node) GetSector() string {
-	if n.parent == nil {
-		return "ROOT"
-	}
-	return n.sector
+//GetQuadrant returns the sector for a given node
+func (n Node) GetQuadrant() byte {
+	return n.quadrant
 }
 
 //InsertPoint Inserts a point into the first availbe node from root and down
@@ -45,15 +43,15 @@ func (n *Node) Find(point geo.Point) *Node {
 	return n.find(point, 0)
 }
 
-//GetHash returns the hash for the node
-func (n *Node) GetHash() string {
+//GetHash returns the hash for the node (this method is only used for testing)
+func (n *Node) getHash() string {
 	if n.parent == nil {
 		return "ROOT"
 	}
 	var buffer bytes.Buffer
 	for n.parent != nil {
-		buffer.WriteString(n.GetSector())
-		n = n.getParent()
+		buffer.WriteByte(n.GetQuadrant())
+		n = n.parent
 	}
 	return buffer.String()
 

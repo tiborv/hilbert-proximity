@@ -15,11 +15,11 @@ func TestRangeQuery(t *testing.T) {
 	max := geo.NewPoint("111", "011")
 	matches := testTree.rangeQuery(min, max)
 	for n := testTree.next; n.next != nil; n = n.next {
-		if n.isWithinRange(min, max) {
+		if n.zpoint.IsWithinRange(min, max) {
 			numOfMatches++
 		}
 	}
-	assert.Equal(t, 84, numOfMatches)
+	assert.Equal(t, 340, numOfMatches)
 
 	assert.Equal(t, len(matches)-1, numOfMatches)
 }

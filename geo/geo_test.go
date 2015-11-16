@@ -9,13 +9,11 @@ import (
 func TestPoint(t *testing.T) {
 	p := NewPoint("01", "11")
 	concat, end := p.GetConcatAt(0)
-	assert.Equal(t, concat, "01", "Should 01")
+	assert.Equal(t, concat, byte(1), "Should be 01")
 	assert.False(t, end, "Should not be end of coordinates")
-	assert.Equal(t, p.GetX(), "01")
-	assert.Equal(t, p.GetY(), "11")
 
 	concat, end = p.GetConcatAt(1)
-	assert.Equal(t, concat, "11", "Should 11")
+	assert.Equal(t, concat, byte(3), "Should be 11")
 	assert.True(t, end, "Should be end of coordinates")
 
 	p2 := NewPoint("01", "11")

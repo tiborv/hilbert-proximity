@@ -9,52 +9,49 @@ import (
 
 //Node struct
 type Node struct {
-	sector   string
-	points   []geo.Point
-	parent   *Node
-	children []*Node
-	orient   string
-	mapper   func(value string, nodes []*Node) *Node
-	next     *Node
-	adj      *Node
-	splitted bool
-	level    int
-	hash     string
-	zx       string
-	zy       string
+	quadrant byte         // Hilbert quadrant
+	orient   rune         // The Hilbert orientation of the current node (Used for confirimation within test)
+	mapper   map[byte]int // Function giving the Hilbert mapped next children node
+	points   []geo.Point  // Points within a node
+	parent   *Node        // Pointer to parrent node
+	children []*Node      // Pointers to children nodes
+	next     *Node        // A pointer to the next node
+	adj      *Node        // A pointer to the adjecent node (Next child of same parent)
+	splitted bool         // Boolean indicating if this node is splitted (has children)
+	level    int          //
+	zpoint   geo.Point
 }
 
 var maxPoints, pointsInserted int
 
-func newNode(parent *Node, orient string, sector string, zvalue string) *Node {
+const orientU, orientD, orientL, orientR = 'u', 'd', 'l', 'r'
+
+//Creates a new node
+func newNode(parent *Node, orient rune, quadrant byte, zvalue byte) *Node {
+
 	newNode := Node{
-		sector:   sector,
+		quadrant: quadrant,
 		parent:   parent,
 		children: make([]*Node, 4),
 		orient:   orient,
 		splitted: false,
 	}
-	if parent == nil { //root
+	if parent == nil { //If root
 		newNode.level = 0
-		newNode.hash = ""
-		newNode.zx = ""
-		newNode.zy = ""
+		newNode.zpoint = geo.NewPoint("", "")
 
 	} else {
 		newNode.level = parent.level + 1
-		newNode.hash = parent.hash + sector
-		newNode.zx += parent.zx + zvalue[:1]
-		newNode.zy += parent.zy + zvalue[1:]
-
+		newNode.zpoint = parent.zpoint.Append(zvalue)
 	}
 	switch orient {
-	case "U":
+	case orientU:
 		newNode.mapper = mapU
-	case "D":
+	case orientD:
 		newNode.mapper = mapD
-	case "L":
+	case orientL:
 		newNode.mapper = mapL
-	case "R":
+	case orientR:
 		newNode.mapper = mapR
 	}
 	return &newNode
@@ -73,39 +70,40 @@ func (n *Node) addPoint(p geo.Point) bool {
 	return false
 
 }
-func (n Node) desend(value string) *Node {
+func (n Node) descend(b byte) *Node {
 	if !n.splitted {
 		log.Fatal("No children to explore!")
 	}
-	return n.mapper(value, n.children)
+	return n.children[n.mapper[b]]
 }
 
 //Split a node and re-distribute points.
+
 func (n *Node) split() *Node {
 	if n.splitted {
 		return n
 	}
 	switch n.orient {
-	case "U":
-		n.children[0] = newNode(n, "R", "00", "00")
-		n.children[1] = newNode(n, "U", "01", "01")
-		n.children[2] = newNode(n, "U", "10", "11")
-		n.children[3] = newNode(n, "L", "11", "10")
-	case "D":
-		n.children[0] = newNode(n, "L", "00", "01")
-		n.children[1] = newNode(n, "D", "01", "00")
-		n.children[2] = newNode(n, "D", "10", "10")
-		n.children[3] = newNode(n, "R", "11", "11")
-	case "L":
-		n.children[0] = newNode(n, "D", "00", "11")
-		n.children[1] = newNode(n, "L", "01", "01")
-		n.children[2] = newNode(n, "L", "10", "00")
-		n.children[3] = newNode(n, "U", "11", "10")
-	case "R":
-		n.children[0] = newNode(n, "U", "00", "01")
-		n.children[1] = newNode(n, "R", "01", "11")
-		n.children[2] = newNode(n, "R", "10", "10")
-		n.children[3] = newNode(n, "D", "11", "00")
+	case orientU:
+		n.children[0] = newNode(n, orientR, 0, 0)
+		n.children[1] = newNode(n, orientU, 1, 1)
+		n.children[2] = newNode(n, orientU, 2, 3)
+		n.children[3] = newNode(n, orientL, 3, 2)
+	case orientD:
+		n.children[0] = newNode(n, orientL, 0, 1)
+		n.children[1] = newNode(n, orientD, 1, 0)
+		n.children[2] = newNode(n, orientD, 2, 2)
+		n.children[3] = newNode(n, orientR, 3, 3)
+	case orientL:
+		n.children[0] = newNode(n, orientD, 0, 3)
+		n.children[1] = newNode(n, orientL, 1, 1)
+		n.children[2] = newNode(n, orientL, 2, 0)
+		n.children[3] = newNode(n, orientU, 3, 1)
+	case orientR:
+		n.children[0] = newNode(n, orientU, 0, 1)
+		n.children[1] = newNode(n, orientR, 1, 3)
+		n.children[2] = newNode(n, orientR, 2, 2)
+		n.children[3] = newNode(n, orientD, 3, 0)
 	}
 
 	for iter := n; iter.parent != nil; iter = iter.parent {
@@ -149,11 +147,15 @@ func (n *Node) split() *Node {
 //Inserts a point into the first availbe children node
 func (n *Node) insert(point geo.Point, pos int) *Node {
 	concat, last := point.GetConcatAt(pos)
-	n = n.split().desend(concat) //.split() only splits if not splitted if not splitted
+
+	n = n.split().descend(concat) //.split() only splits if not splitted
 	if n.addPoint(point) {
 		return n
 	}
 	if last {
+		fmt.Println(n.parent.children[n.mapper[1]])
+		fmt.Println(n.parent.children[n.mapper[2]])
+
 		fmt.Println(n.points, n.treePos(), n.level)
 		log.Fatal("Couldnt insert, not enough point", point)
 	}
@@ -163,15 +165,15 @@ func (n *Node) insert(point geo.Point, pos int) *Node {
 
 func (n *Node) find(point geo.Point, pos int) *Node {
 	concat, last := point.GetConcatAt(pos)
-	if n.desend(concat).ContainsPoint(point) {
-		return n.desend(concat)
+	if n.descend(concat).ContainsPoint(point) {
+		return n.descend(concat)
 	}
 
 	if last {
-		return nil
+		return nil //Not found
 	}
 
-	return n.desend(concat).find(point, pos+1)
+	return n.descend(concat).find(point, pos+1)
 
 }
 
@@ -182,15 +184,11 @@ func (n *Node) getRoot() *Node {
 	return n
 }
 
-func (n *Node) getParent() *Node {
-	return n.parent
-}
-
 func (n Node) treePos() []int {
 	var arr []int
 	for n.parent != nil {
 		for i, c := range n.parent.children {
-			if c.hash == n.hash {
+			if c.zpoint.Equals(n.zpoint) {
 				arr = append(arr, i)
 				break
 			}
