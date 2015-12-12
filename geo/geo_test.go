@@ -8,13 +8,13 @@ import (
 
 func TestPoint(t *testing.T) {
 	p := NewPoint("01", "11")
-	concat, end := p.GetConcatAt(0)
+	concat, end := p.GetMortonAt(0)
 	assert.Equal(t, concat, "01", "Should 01")
 	assert.False(t, end, "Should not be end of coordinates")
-	assert.Equal(t, p.GetX(), "01")
-	assert.Equal(t, p.GetY(), "11")
+	assert.Equal(t, p.GetX().String(), "01")
+	assert.Equal(t, p.GetY().String(), "11")
 
-	concat, end = p.GetConcatAt(1)
+	concat, end = p.GetMortonAt(1)
 	assert.Equal(t, concat, "11", "Should 11")
 	assert.True(t, end, "Should be end of coordinates")
 

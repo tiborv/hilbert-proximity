@@ -1,4 +1,0 @@
-{
-  "cmd": "go run main.go",
-  "sh":"/bin/zsh"
-}
